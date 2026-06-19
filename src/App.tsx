@@ -85,7 +85,7 @@ export default function App() {
     return (
       <div style={{ fontFamily: "Inter, sans-serif", background: "#F8FAFC", minHeight: "100vh" }}>
         <Sidebar tab={tab} setTab={setTab} user={session.user} />
-        <main style={{ marginLeft: 240, maxWidth: 700, padding: "0 24px" }}>
+        <main style={{ marginLeft: 240, padding: "24px 48px", width: "calc(100% - 240px)" }}>
           {renderTab()}
         </main>
       </div>
