@@ -3,6 +3,7 @@ import { supabase } from "./lib/supabase";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Accounts from "./pages/Accounts";
+import Transactions from "./pages/Transactions";
 
 const COLORS = {
   navy: "#0A2540",
@@ -14,7 +15,8 @@ const COLORS = {
 function BottomNav({ tab, setTab }: { tab: string; setTab: (t: string) => void }) {
   const tabs = [
     { id: "dashboard", label: "Início", icon: "🏠" },
-    { id: "transactions", label: "Contas", icon: "🏦" },
+    { id: "transactions", label: "Transações", icon: "↔️" },
+    { id: "accounts", label: "Contas", icon: "🏦" },
     { id: "goals", label: "Metas", icon: "🎯" },
     { id: "profile", label: "Perfil", icon: "👤" },
   ];
@@ -23,7 +25,7 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: string) => void }
       {tabs.map(t => (
         <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, border: "none", background: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: tab === t.id ? COLORS.emerald : COLORS.muted, fontWeight: tab === t.id ? 600 : 400 }}>
           <span style={{ fontSize: 20 }}>{t.icon}</span>
-          <span style={{ fontSize: 11 }}>{t.label}</span>
+          <span style={{ fontSize: 10 }}>{t.label}</span>
         </button>
       ))}
     </nav>
@@ -60,7 +62,8 @@ export default function App() {
   const renderTab = () => {
     switch (tab) {
       case "dashboard": return <Dashboard user={session.user} />;
-      case "transactions": return <Accounts user={session.user} />;
+      case "transactions": return <Transactions user={session.user} />;
+      case "accounts": return <Accounts user={session.user} />;
       case "goals": return (
         <div style={{ padding: 20 }}>
           <h2 style={{ color: COLORS.navy, fontSize: 20, fontWeight: 700 }}>Metas</h2>
@@ -81,9 +84,3 @@ export default function App() {
   };
 
   return (
-    <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", fontFamily: "Inter, sans-serif", background: "#F8FAFC", paddingBottom: 64 }}>
-      {renderTab()}
-      <BottomNav tab={tab} setTab={setTab} />
-    </div>
-  );
-}
