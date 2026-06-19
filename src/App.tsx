@@ -4,6 +4,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Accounts from "./pages/Accounts";
 import Transactions from "./pages/Transactions";
+import Goals from "./pages/Goals";
 
 const COLORS = {
   navy: "#0A2540",
@@ -64,12 +65,7 @@ export default function App() {
       case "dashboard": return <Dashboard user={session.user} />;
       case "transactions": return <Transactions user={session.user} />;
       case "accounts": return <Accounts user={session.user} />;
-      case "goals": return (
-        <div style={{ padding: 20 }}>
-          <h2 style={{ color: COLORS.navy, fontSize: 20, fontWeight: 700 }}>Metas</h2>
-          <p style={{ color: COLORS.muted }}>Em breve... 🚧</p>
-        </div>
-      );
+      case "goals": return <Goals user={session.user} />;
       case "profile": return (
         <div style={{ padding: 20 }}>
           <h2 style={{ color: COLORS.navy, fontSize: 20, fontWeight: 700 }}>Perfil</h2>
