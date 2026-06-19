@@ -8,6 +8,7 @@ const COLORS = {
   destructive: "#E11D48",
   warning: "#F59E0B",
   muted: "#64748B",
+  hint: "#94A3B8",
   border: "#E2E8F0",
   chip: "#F1F5F9",
   bg: "#F8FAFC",
