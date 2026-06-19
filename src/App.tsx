@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "./lib/supabase";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Accounts from "./pages/Accounts";
 
 const COLORS = {
   navy: "#0A2540",
@@ -13,7 +14,7 @@ const COLORS = {
 function BottomNav({ tab, setTab }: { tab: string; setTab: (t: string) => void }) {
   const tabs = [
     { id: "dashboard", label: "Início", icon: "🏠" },
-    { id: "transactions", label: "Transações", icon: "↔️" },
+    { id: "transactions", label: "Contas", icon: "🏦" },
     { id: "goals", label: "Metas", icon: "🎯" },
     { id: "profile", label: "Perfil", icon: "👤" },
   ];
@@ -59,12 +60,7 @@ export default function App() {
   const renderTab = () => {
     switch (tab) {
       case "dashboard": return <Dashboard user={session.user} />;
-      case "transactions": return (
-        <div style={{ padding: 20 }}>
-          <h2 style={{ color: COLORS.navy, fontSize: 20, fontWeight: 700 }}>Transações</h2>
-          <p style={{ color: COLORS.muted }}>Em breve... 🚧</p>
-        </div>
-      );
+      case "transactions": return <Accounts user={session.user} />;
       case "goals": return (
         <div style={{ padding: 20 }}>
           <h2 style={{ color: COLORS.navy, fontSize: 20, fontWeight: 700 }}>Metas</h2>
@@ -90,4 +86,4 @@ export default function App() {
       <BottomNav tab={tab} setTab={setTab} />
     </div>
   );
-} 
+}
