@@ -84,3 +84,9 @@ export default function App() {
   };
 
   return (
+    <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", fontFamily: "Inter, sans-serif", background: "#F8FAFC", paddingBottom: 64 }}>
+      {renderTab()}
+      <BottomNav tab={tab} setTab={setTab} />
+    </div>
+  );
+}
