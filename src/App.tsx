@@ -6,6 +6,7 @@ import Accounts from "./pages/Accounts";
 import Transactions from "./pages/Transactions";
 import Goals from "./pages/Goals";
 import Profile from "./pages/Profile";
+import Sidebar from "./components/Sidebar";
 
 const COLORS = {
   navy: "#0A2540",
@@ -38,6 +39,13 @@ export default function App() {
   const [session, setSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("dashboard");
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -51,7 +59,7 @@ export default function App() {
   }, []);
 
   if (loading) return (
-    <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, sans-serif", background: "#F8FAFC" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, sans-serif", background: "#F8FAFC" }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ fontSize: 48 }}>⚓</div>
         <p style={{ color: COLORS.muted, marginTop: 12 }}>Carregando...</p>
@@ -72,6 +80,19 @@ export default function App() {
     }
   };
 
+  // DESKTOP: menu lateral + conteúdo
+  if (isDesktop) {
+    return (
+      <div style={{ fontFamily: "Inter, sans-serif", background: "#F8FAFC", minHeight: "100vh" }}>
+        <Sidebar tab={tab} setTab={setTab} user={session.user} />
+        <main style={{ marginLeft: 240, maxWidth: 700, padding: "0 24px" }}>
+          {renderTab()}
+        </main>
+      </div>
+    );
+  }
+
+  // MOBILE: barra inferior
   return (
     <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", fontFamily: "Inter, sans-serif", background: "#F8FAFC", paddingBottom: 64 }}>
       {renderTab()}
