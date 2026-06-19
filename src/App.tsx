@@ -90,4 +90,4 @@ export default function App() {
       <BottomNav tab={tab} setTab={setTab} />
     </div>
   );
-}
+} 
