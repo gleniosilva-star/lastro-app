@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Accounts from "./pages/Accounts";
 import Transactions from "./pages/Transactions";
 import Goals from "./pages/Goals";
+import Profile from "./pages/Profile";
 
 const COLORS = {
   navy: "#0A2540",
@@ -66,15 +67,7 @@ export default function App() {
       case "transactions": return <Transactions user={session.user} />;
       case "accounts": return <Accounts user={session.user} />;
       case "goals": return <Goals user={session.user} />;
-      case "profile": return (
-        <div style={{ padding: 20 }}>
-          <h2 style={{ color: COLORS.navy, fontSize: 20, fontWeight: 700 }}>Perfil</h2>
-          <p style={{ color: COLORS.muted }}>{session.user.email}</p>
-          <button onClick={() => supabase.auth.signOut()} style={{ marginTop: 16, padding: "10px 20px", borderRadius: 10, border: "none", background: "#E11D48", color: "#fff", fontWeight: 600, cursor: "pointer" }}>
-            Sair
-          </button>
-        </div>
-      );
+      case "profile": return <Profile user={session.user} />;
       default: return null;
     }
   };
