@@ -80,7 +80,7 @@ export default function App() {
     }
   };
 
-  // DESKTOP: menu lateral + conteúdo
+// DESKTOP: menu lateral + conteúdo
   if (isDesktop) {
     return (
       <div style={{ fontFamily: "Inter, sans-serif", background: "#F8FAFC", minHeight: "100vh" }}>
