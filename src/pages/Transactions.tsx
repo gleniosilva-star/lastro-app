@@ -4,13 +4,11 @@ import { supabase } from "../lib/supabase";
 const COLORS = {
   navy: "#0A2540",
   emerald: "#10B981",
-  emeraldDark: "#059669",
   destructive: "#E11D48",
   muted: "#64748B",
   hint: "#94A3B8",
   border: "#E2E8F0",
   chip: "#F1F5F9",
-  bg: "#F8FAFC",
 };
 
 const fmt = (v: number) =>
@@ -27,7 +25,12 @@ export default function Transactions({ user }: { user: any }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
-    description: "", amount: "", type: "despesa", account_id: "", category_id: "", transaction_date: new Date().toISOString().split("T")[0],
+    description: "",
+    amount: "",
+    type: "despesa",
+    account_id: "",
+    category_id: "",
+    transaction_date: new Date().toISOString().split("T")[0],
   });
 
   const load = async () => {
@@ -89,7 +92,7 @@ export default function Transactions({ user }: { user: any }) {
   const grouped: Record<string, any[]> = {};
   filtered.forEach(t => {
     const key = fmtDate(t.transaction_date);
-    grouped[key] = grouped[key] || [];
+    if (!grouped[key]) grouped[key] = [];
     grouped[key].push(t);
   });
 
@@ -97,12 +100,10 @@ export default function Transactions({ user }: { user: any }) {
     <div style={{ padding: "16px", paddingBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: COLORS.navy }}>Transações</h2>
-        <button onClick={() => setShowModal(true)} style={{ background: COLORS.emerald, border: "none", borderRadius: 10, padding: "8px 16px", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>
-          + Nova
-        </button>
+        <button onClick={() => setShowModal(true)} style={{ background: COLORS.emerald, border: "none", borderRadius: 10, padding: "8px 16px", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>+ Nova</button>
       </div>
 
-      <input placeholder="🔍 Buscar..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 14, marginBottom: 12, boxSizing: "border-box", outline: "none" }} />
+      <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 14, marginBottom: 12, boxSizing: "border-box", outline: "none" }} />
 
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         {[["all", "Tudo"], ["receita", "Entradas"], ["despesa", "Saídas"]].map(([v, l]) => (
@@ -116,46 +117,42 @@ export default function Transactions({ user }: { user: any }) {
         <div style={{ textAlign: "center", padding: "40px 0" }}>
           <p style={{ fontSize: 40 }}>💸</p>
           <p style={{ color: COLORS.muted, fontSize: 15 }}>Nenhuma transação ainda</p>
-          <p style={{ color: COLORS.hint, fontSize: 13 }}>Toque em "+ Nova" para começar</p>
+          <p style={{ color: COLORS.hint, fontSize: 13 }}>Toque em + Nova para começar</p>
         </div>
-      ) : Object.entries(grouped).map(([day, txs]) => (
-        <div key={day}>
-          <p style={{ fontSize: 12, color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>{day}</p>
-          <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 12 }}>
-            {txs.map((t, i) => (
-              <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < txs.length - 1 ? `0.5px solid ${COLORS.border}` : "none" }}>
-                <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: COLORS.chip, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
-                    {t.categories?.icon || "📌"}
+      ) : (
+        Object.entries(grouped).map(([day, txs]) => (
+          <div key={day}>
+            <p style={{ fontSize: 12, color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>{day}</p>
+            <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 12 }}>
+              {txs.map((t, i) => (
+                <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < txs.length - 1 ? `0.5px solid ${COLORS.border}` : "none" }}>
+                  <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 12, background: COLORS.chip, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
+                      {t.categories?.icon || "📌"}
+                    </div>
+                    <div>
+                      <p style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t.description}</p>
+                      <p style={{ margin: 0, fontSize: 12, color: COLORS.muted }}>{t.accounts?.name || "—"} · {t.categories?.name || "Sem categoria"}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t.description}</p>
-                    <p style={{ margin: 0, fontSize: 12, color: COLORS.muted }}>{t.accounts?.name || "—"} · {t.categories?.name || "Sem categoria"}</p>
-                  </div>
+                  <span style={{ color: t.type === "receita" ? COLORS.emerald : COLORS.destructive, fontWeight: 700, fontSize: 15, fontVariantNumeric: "tabular-nums" }}>
+                    {t.type === "receita" ? "+" : "-"}{fmt(Math.abs(Number(t.amount)))}
+                  </span>
                 </div>
-                <span style={{ color: t.type === "receita" ? COLORS.emerald : COLORS.destructive, fontWeight: 700, fontSize: 15, fontVariantNumeric: "tabular-nums" }}>
-                  {t.type === "receita" ? "+" : "-"}{fmt(Math.abs(Number(t.amount)))}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
 
-      {/* Modal */}
       {showModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 200 }}>
           <div style={{ background: "#fff", borderRadius: "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 430, maxHeight: "90vh", overflowY: "auto" }}>
             <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>Nova transação</h3>
 
-            {/* Tipo */}
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-              <button onClick={() => setForm({ ...form, type: "despesa", category_id: "" })} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 600, background: form.type === "despesa" ? COLORS.destructive : COLORS.chip, color: form.type === "despesa" ? "#fff" : COLORS.muted }}>
-                Saída
-              </button>
-              <button onClick={() => setForm({ ...form, type: "receita", category_id: "" })} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 600, background: form.type === "receita" ? COLORS.emerald : COLORS.chip, color: form.type === "receita" ? "#fff" : COLORS.muted }}>
-                Entrada
-              </button>
+              <button onClick={() => setForm({ ...form, type: "despesa", category_id: "" })} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 600, background: form.type === "despesa" ? COLORS.destructive : COLORS.chip, color: form.type === "despesa" ? "#fff" : COLORS.muted }}>Saída</button>
+              <button onClick={() => setForm({ ...form, type: "receita", category_id: "" })} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 600, background: form.type === "receita" ? COLORS.emerald : COLORS.chip, color: form.type === "receita" ? "#fff" : COLORS.muted }}>Entrada</button>
             </div>
 
             <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Descrição *</label>
@@ -182,4 +179,12 @@ export default function Transactions({ user }: { user: any }) {
             {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
 
             <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={() => { setShowModal(false); setError(""); }} style={{ flex: 1, padding: 14, borderRadius: 10, border:
+              <button onClick={() => { setShowModal(false); setError(""); }} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
+              <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 10, border: "none", background: COLORS.navy, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>{saving ? "Salvando..." : "Salvar"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
