@@ -17,31 +17,43 @@ const COLORS = {
 const fmt = (v: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 
+const saudacao = () => {
+  const h = new Date().getHours();
+  if (h < 12) return "Bom dia,";
+  if (h < 18) return "Boa tarde,";
+  return "Boa noite,";
+};
+
 export default function Dashboard({ user }: { user: any }) {
   const [hideBalance, setHideBalance] = useState(false);
   const [accounts, setAccounts] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [goals, setGoals] = useState<any[]>([]);
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: acc }, { data: txs }, { data: gls }] = await Promise.all([
+      const now = new Date();
+      const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+      const [{ data: acc }, { data: txs }, { data: gls }, { data: monthTxs }] = await Promise.all([
         supabase.from("accounts").select("*").eq("is_archived", false),
         supabase.from("transactions").select("*, categories(name, icon, color)").order("transaction_date", { ascending: false }).limit(5),
         supabase.from("goals").select("*").limit(1),
+        supabase.from("transactions").select("type, amount").gte("transaction_date", monthStart),
       ]);
       setAccounts(acc || []);
       setTransactions(txs || []);
       setGoals(gls || []);
+      setIncome((monthTxs || []).filter(t => t.type === "receita").reduce((s, t) => s + Number(t.amount), 0));
+      setExpense((monthTxs || []).filter(t => t.type === "despesa").reduce((s, t) => s + Number(t.amount), 0));
       setLoading(false);
     };
     load();
   }, []);
 
   const totalBalance = accounts.reduce((s, a) => s + Number(a.current_balance), 0);
-  const income = transactions.filter(t => t.type === "receita").reduce((s, t) => s + Number(t.amount), 0);
-  const expense = transactions.filter(t => t.type === "despesa").reduce((s, t) => s + Number(t.amount), 0);
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "você";
   const featuredGoal = goals[0];
   const goalPct = featuredGoal ? Math.min(100, Math.round((featuredGoal.current_amount / featuredGoal.target_amount) * 100)) : 0;
@@ -58,7 +70,7 @@ export default function Dashboard({ user }: { user: any }) {
       <div style={{ background: COLORS.navy, padding: "24px 16px 32px", borderRadius: "0 0 24px 24px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
           <div>
-            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, margin: 0 }}>Bom dia,</p>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, margin: 0 }}>{saudacao()}</p>
             <p style={{ color: "#fff", fontSize: 18, fontWeight: 600, margin: 0 }}>{firstName} 👋</p>
           </div>
           <div style={{ width: 40, height: 40, borderRadius: "50%", background: COLORS.emerald, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 700, fontSize: 16 }}>
@@ -87,13 +99,13 @@ export default function Dashboard({ user }: { user: any }) {
         {/* Receitas vs Despesas */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
           <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}` }}>
-            <p style={{ color: COLORS.muted, fontSize: 12, margin: "0 0 4px" }}>Entradas</p>
+            <p style={{ color: COLORS.muted, fontSize: 12, margin: "0 0 4px" }}>Entradas no mês</p>
             <p style={{ color: COLORS.emerald, fontSize: 16, fontWeight: 700, margin: 0, fontVariantNumeric: "tabular-nums" }}>
               +{fmt(income)}
             </p>
           </div>
           <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}` }}>
-            <p style={{ color: COLORS.muted, fontSize: 12, margin: "0 0 4px" }}>Saídas</p>
+            <p style={{ color: COLORS.muted, fontSize: 12, margin: "0 0 4px" }}>Saídas no mês</p>
             <p style={{ color: COLORS.destructive, fontSize: 16, fontWeight: 700, margin: 0, fontVariantNumeric: "tabular-nums" }}>
               -{fmt(expense)}
             </p>
