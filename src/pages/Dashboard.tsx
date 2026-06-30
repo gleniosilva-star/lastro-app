@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 const COLORS = {
   navy: "#0A2540",
@@ -31,23 +32,54 @@ export default function Dashboard({ user }: { user: any }) {
   const [goals, setGoals] = useState<any[]>([]);
   const [income, setIncome] = useState(0);
   const [expense, setExpense] = useState(0);
+  const [catData, setCatData] = useState<any[]>([]);
+  const [monthData, setMonthData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
       const now = new Date();
       const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-      const [{ data: acc }, { data: txs }, { data: gls }, { data: monthTxs }] = await Promise.all([
+      // buckets dos últimos 6 meses
+      const months: { key: string; label: string; receita: number; despesa: number }[] = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        months.push({ key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`, label: d.toLocaleDateString("pt-BR", { month: "short" }).replace(".", ""), receita: 0, despesa: 0 });
+      }
+      const sixStart = `${months[0].key}-01`;
+
+      const [{ data: acc }, { data: txs }, { data: gls }, { data: monthTxs }, { data: sixTxs }] = await Promise.all([
         supabase.from("accounts").select("*").eq("is_archived", false),
         supabase.from("transactions").select("*, categories(name, icon, color)").order("transaction_date", { ascending: false }).limit(5),
         supabase.from("goals").select("*").limit(1),
-        supabase.from("transactions").select("type, amount").gte("transaction_date", monthStart),
+        supabase.from("transactions").select("type, amount, categories(name, color)").gte("transaction_date", monthStart),
+        supabase.from("transactions").select("type, amount, transaction_date").gte("transaction_date", sixStart),
       ]);
       setAccounts(acc || []);
       setTransactions(txs || []);
       setGoals(gls || []);
-      setIncome((monthTxs || []).filter(t => t.type === "receita").reduce((s, t) => s + Number(t.amount), 0));
-      setExpense((monthTxs || []).filter(t => t.type === "despesa").reduce((s, t) => s + Number(t.amount), 0));
+
+      const mtx = monthTxs || [];
+      setIncome(mtx.filter(t => t.type === "receita").reduce((s, t) => s + Number(t.amount), 0));
+      setExpense(mtx.filter(t => t.type === "despesa").reduce((s, t) => s + Number(t.amount), 0));
+
+      // gastos por categoria (despesas do mês)
+      const catMap: Record<string, any> = {};
+      mtx.filter((t: any) => t.type === "despesa").forEach((t: any) => {
+        const name = t.categories?.name || "Sem categoria";
+        const color = t.categories?.color || COLORS.hint;
+        if (!catMap[name]) catMap[name] = { name, color, value: 0 };
+        catMap[name].value += Number(t.amount);
+      });
+      setCatData(Object.values(catMap).sort((a: any, b: any) => b.value - a.value));
+
+      // evolução mensal (entradas x saídas)
+      (sixTxs || []).forEach((t: any) => {
+        const m = months.find(x => x.key === String(t.transaction_date).slice(0, 7));
+        if (m) { if (t.type === "receita") m.receita += Number(t.amount); else m.despesa += Number(t.amount); }
+      });
+      setMonthData(months);
+
       setLoading(false);
     };
     load();
@@ -111,6 +143,46 @@ export default function Dashboard({ user }: { user: any }) {
             </p>
           </div>
         </div>
+
+        {/* Evolução mensal */}
+        <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 16 }}>
+          <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 12px" }}>Entradas e saídas · 6 meses</p>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={monthData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
+              <XAxis dataKey="label" tick={{ fontSize: 11, fill: COLORS.muted }} axisLine={false} tickLine={false} />
+              <YAxis hide />
+              <Tooltip formatter={(v: any) => fmt(Number(v))} cursor={{ fill: COLORS.chip }} />
+              <Bar dataKey="receita" name="Entradas" fill={COLORS.emerald} radius={[4, 4, 0, 0]} />
+              <Bar dataKey="despesa" name="Saídas" fill={COLORS.destructive} radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Gastos por categoria */}
+        {catData.length > 0 && (
+          <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 16 }}>
+            <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 12px" }}>Gastos por categoria · mês</p>
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={catData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={80} paddingAngle={2}>
+                  {catData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                </Pie>
+                <Tooltip formatter={(v: any) => fmt(Number(v))} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div style={{ marginTop: 8 }}>
+              {catData.map((d, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ width: 10, height: 10, borderRadius: 3, background: d.color, display: "inline-block" }} />
+                    <span style={{ fontSize: 13, color: COLORS.muted }}>{d.name}</span>
+                  </div>
+                  <span style={{ fontSize: 13, fontWeight: 600, fontVariantNumeric: "tabular-nums" }}>{fmt(d.value)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Meta em destaque */}
         {featuredGoal && (
