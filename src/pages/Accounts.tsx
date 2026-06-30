@@ -35,14 +35,15 @@ export default function Accounts({ user }: { user: any }) {
   useEffect(() => { load(); }, []);
 
   const handleSave = async () => {
-    if (!form.name) { setError("Nome é obrigatório"); return; }
+    if (!form.name.trim()) { setError("Nome é obrigatório"); return; }
+    const balance = form.initial_balance.trim() === "" ? 0 : parseFloat(form.initial_balance.replace(",", "."));
+    if (!Number.isFinite(balance)) { setError("Saldo inicial inválido."); return; }
     setSaving(true);
     setError("");
-    const balance = parseFloat(form.initial_balance.replace(",", ".")) || 0;
     const { error } = await supabase.from("accounts").insert({
       user_id: user.id,
-      name: form.name,
-      bank: form.bank,
+      name: form.name.trim(),
+      bank: form.bank.trim(),
       type: form.type,
       initial_balance: balance,
       current_balance: balance,

@@ -48,19 +48,20 @@ export default function Transactions({ user }: { user: any }) {
   useEffect(() => { load(); }, []);
 
   const handleSave = async () => {
-    if (!form.description) { setError("Descrição é obrigatória"); return; }
-    if (!form.amount) { setError("Valor é obrigatório"); return; }
+    if (!form.description.trim()) { setError("Descrição é obrigatória"); return; }
+    const amount = Math.abs(parseFloat(form.amount.replace(",", ".")));
+    if (!form.amount || !Number.isFinite(amount) || amount <= 0) { setError("Informe um valor válido maior que zero."); return; }
     if (!form.account_id) { setError("Selecione uma conta"); return; }
+    if (!form.transaction_date) { setError("Selecione a data."); return; }
     setSaving(true);
     setError("");
-    const amount = Math.abs(parseFloat(form.amount.replace(",", ".")));
     const { error } = await supabase.from("transactions").insert({
       user_id: user.id,
       account_id: form.account_id,
       category_id: form.category_id || null,
       amount,
       type: form.type,
-      description: form.description,
+      description: form.description.trim(),
       transaction_date: form.transaction_date,
     });
     if (error) setError("Erro ao salvar.");

@@ -33,15 +33,18 @@ export default function Goals({ user }: { user: any }) {
   useEffect(() => { load(); }, []);
 
   const handleSave = async () => {
-    if (!form.name) { setError("Nome é obrigatório"); return; }
-    if (!form.target_amount) { setError("Valor da meta é obrigatório"); return; }
+    if (!form.name.trim()) { setError("Nome é obrigatório"); return; }
+    const target = parseFloat(form.target_amount.replace(",", "."));
+    if (!form.target_amount || !Number.isFinite(target) || target <= 0) { setError("Informe um valor de meta válido maior que zero."); return; }
+    const current = form.current_amount.trim() === "" ? 0 : parseFloat(form.current_amount.replace(",", "."));
+    if (!Number.isFinite(current) || current < 0) { setError("Valor já guardado inválido."); return; }
     setSaving(true);
     setError("");
     const { error } = await supabase.from("goals").insert({
       user_id: user.id,
-      name: form.name,
-      target_amount: parseFloat(form.target_amount.replace(",", ".")),
-      current_amount: parseFloat((form.current_amount || "0").replace(",", ".")),
+      name: form.name.trim(),
+      target_amount: target,
+      current_amount: current,
       target_date: form.target_date || null,
     });
     if (error) setError("Erro ao salvar meta.");
