@@ -46,7 +46,7 @@ export default function Sidebar({ tab, setTab, user }: { tab: string; setTab: (t
             {name[0].toUpperCase()}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ margin: 0, color: "#fff", fontSize: 13, fontWeight: 500, lineHeight: 1.3, overflowWrap: "break-word" }}>{name}</p>
+            <p title={name} style={{ margin: 0, color: "#fff", fontSize: 13, fontWeight: 500, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{name}</p>
             <p style={{ margin: 0, color: "rgba(255,255,255,0.5)", fontSize: 11 }}>Conta gratuita</p>
           </div>
         </div>

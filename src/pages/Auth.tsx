@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useIsDesktop } from "../lib/useIsDesktop";
 
 const COLORS = {
   navy: "#0A2540",
@@ -12,6 +13,7 @@ const COLORS = {
 };
 
 export default function Auth() {
+  const isDesktop = useIsDesktop();
   const [mode, setMode] = useState<"login" | "cadastro" | "recuperar">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +47,8 @@ export default function Auth() {
   };
 
   return (
-    <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", background: COLORS.bg, fontFamily: "Inter, sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: COLORS.bg, fontFamily: "Inter, sans-serif", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: isDesktop ? "center" : "flex-start", padding: isDesktop ? 24 : 0, boxSizing: "border-box" }}>
+      <div style={{ width: "100%", maxWidth: 430, display: "flex", flexDirection: "column", overflow: "hidden", borderRadius: isDesktop ? 24 : 0, boxShadow: isDesktop ? "0 10px 40px rgba(10,37,64,0.12)" : "none" }}>
       {/* Header */}
       <div style={{ background: COLORS.navy, padding: "48px 24px 32px", textAlign: "center" }}>
         <div style={{ fontSize: 48 }}>⚓</div>
@@ -133,6 +136,7 @@ export default function Auth() {
             🔒 Seus dados protegidos pela LGPD
           </span>
         </div>
+      </div>
       </div>
     </div>
   );
