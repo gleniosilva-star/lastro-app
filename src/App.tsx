@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Sidebar from "./components/Sidebar";
 import AnchorMark from "./components/AnchorMark";
 import ResetPassword from "./pages/ResetPassword";
+import QuickAddTransaction from "./components/QuickAddTransaction";
 
 const COLORS = {
   navy: "var(--navy)",
@@ -50,6 +51,8 @@ export default function App() {
   const [recovery, setRecovery] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("dashboard");
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
 
   useEffect(() => {
@@ -85,14 +88,22 @@ export default function App() {
 
   const renderTab = () => {
     switch (tab) {
-      case "dashboard": return <Dashboard user={session.user} />;
-      case "transactions": return <Transactions user={session.user} />;
-      case "accounts": return <Accounts user={session.user} />;
-      case "goals": return <Goals user={session.user} />;
-      case "profile": return <Profile user={session.user} />;
+      case "dashboard": return <Dashboard key={refreshKey} user={session.user} />;
+      case "transactions": return <Transactions key={refreshKey} user={session.user} />;
+      case "accounts": return <Accounts key={refreshKey} user={session.user} />;
+      case "goals": return <Goals key={refreshKey} user={session.user} />;
+      case "profile": return <Profile key={refreshKey} user={session.user} />;
       default: return null;
     }
   };
+
+  // Botão flutuante de lançamento rápido, disponível em todas as telas.
+  const quickAddUI = (
+    <>
+      <button onClick={() => setQuickAddOpen(true)} aria-label="Lançamento rápido" title="Lançamento rápido" style={{ position: "fixed", right: isDesktop ? 24 : 16, bottom: isDesktop ? 24 : 80, width: 56, height: 56, borderRadius: "50%", background: COLORS.emerald, color: "#fff", border: "none", fontSize: 30, cursor: "pointer", boxShadow: "0 6px 20px rgba(16,185,129,0.45)", zIndex: 150, display: "flex", alignItems: "center", justifyContent: "center", lineHeight: 1 }}>+</button>
+      {quickAddOpen && <QuickAddTransaction user={session.user} onClose={() => setQuickAddOpen(false)} onSaved={() => setRefreshKey(k => k + 1)} />}
+    </>
+  );
 
 // DESKTOP: menu lateral + conteúdo
   if (isDesktop) {
@@ -104,6 +115,7 @@ export default function App() {
             {renderTab()}
           </div>
         </main>
+        {quickAddUI}
       </div>
     );
   }
@@ -113,6 +125,7 @@ export default function App() {
     <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", fontFamily: "Inter, sans-serif", background: COLORS.bg, paddingBottom: 64 }}>
       {renderTab()}
       <BottomNav tab={tab} setTab={setTab} />
+      {quickAddUI}
     </div>
   );
 }
