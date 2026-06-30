@@ -7,6 +7,7 @@ import Transactions from "./pages/Transactions";
 import Goals from "./pages/Goals";
 import Profile from "./pages/Profile";
 import Sidebar from "./components/Sidebar";
+import AnchorMark from "./components/AnchorMark";
 
 const COLORS = {
   navy: "#0A2540",
@@ -61,7 +62,7 @@ export default function App() {
   if (loading) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, sans-serif", background: "#F8FAFC" }}>
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: 48 }}>⚓</div>
+        <div style={{ display: "flex", justifyContent: "center" }}><AnchorMark size={48} color={COLORS.navy} /></div>
         <p style={{ color: COLORS.muted, marginTop: 12 }}>Carregando...</p>
       </div>
     </div>

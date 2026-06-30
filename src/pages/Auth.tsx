@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useIsDesktop } from "../lib/useIsDesktop";
+import AnchorMark from "../components/AnchorMark";
 
 const COLORS = {
   navy: "#0A2540",
@@ -51,7 +52,7 @@ export default function Auth() {
       <div style={{ width: "100%", maxWidth: 430, display: "flex", flexDirection: "column", overflow: "hidden", borderRadius: isDesktop ? 24 : 0, boxShadow: isDesktop ? "0 10px 40px rgba(10,37,64,0.12)" : "none" }}>
       {/* Header */}
       <div style={{ background: COLORS.navy, padding: "48px 24px 32px", textAlign: "center" }}>
-        <div style={{ fontSize: 48 }}>⚓</div>
+        <div style={{ display: "flex", justifyContent: "center" }}><AnchorMark size={52} color="#FFFFFF" /></div>
         <h1 style={{ color: "#fff", fontSize: 28, fontWeight: 700, margin: "8px 0 4px" }}>Lastro</h1>
         <p style={{ color: "rgba(255,255,255,0.6)", margin: 0, fontSize: 14 }}>Sua vida financeira em paz</p>
       </div>

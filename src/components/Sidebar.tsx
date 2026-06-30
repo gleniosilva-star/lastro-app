@@ -1,3 +1,5 @@
+import AnchorMark from "./AnchorMark";
+
 const COLORS = {
   navy: "#0A2540",
   emerald: "#10B981",
@@ -18,7 +20,7 @@ export default function Sidebar({ tab, setTab, user }: { tab: string; setTab: (t
   return (
     <aside style={{ width: 240, background: COLORS.navy, minHeight: "100vh", padding: "24px 16px", display: "flex", flexDirection: "column", position: "fixed", left: 0, top: 0 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 32, padding: "0 8px" }}>
-        <span style={{ fontSize: 28 }}>⚓</span>
+        <AnchorMark size={28} color="#FFFFFF" />
         <span style={{ color: "#fff", fontSize: 22, fontWeight: 700 }}>Lastro</span>
       </div>
 

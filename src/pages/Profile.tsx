@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
+import AnchorMark from "../components/AnchorMark";
 
 const COLORS = {
   navy: "#0A2540",
@@ -86,7 +87,7 @@ export default function Profile({ user }: { user: any }) {
         </div>
       </div>
 
-      <p style={{ textAlign: "center", color: COLORS.hint, fontSize: 12, marginTop: 24 }}>Lastro ⚓ · Sua vida financeira em paz</p>
+      <p style={{ textAlign: "center", color: COLORS.hint, fontSize: 12, marginTop: 24 }}>Lastro <span style={{ display: "inline-flex", verticalAlign: "middle" }}><AnchorMark size={13} color={COLORS.hint} /></span> · Sua vida financeira em paz</p>
     </div>
   );
 }
