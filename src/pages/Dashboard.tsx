@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { savingsRate } from "../lib/finance";
 
 const COLORS = {
   navy: "var(--navy)",
@@ -88,6 +89,7 @@ export default function Dashboard({ user }: { user: any }) {
   }, []);
 
   const totalBalance = accounts.reduce((s, a) => s + Number(a.current_balance), 0);
+  const rate = savingsRate(income, expense);
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "você";
   const featuredGoal = goals[0];
   const goalPct = featuredGoal ? Math.min(100, Math.round((featuredGoal.current_amount / featuredGoal.target_amount) * 100)) : 0;
@@ -144,6 +146,26 @@ export default function Dashboard({ user }: { user: any }) {
               -{fmt(expense)}
             </p>
           </div>
+        </div>
+
+        {/* Taxa de poupança */}
+        <div style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <p style={{ color: COLORS.muted, fontSize: 12, margin: "0 0 4px" }}>Taxa de poupança · mês</p>
+              <p style={{ color: rate == null ? COLORS.muted : rate >= 0 ? COLORS.emerald : COLORS.destructive, fontSize: 22, fontWeight: 700, margin: 0, fontVariantNumeric: "tabular-nums" }}>
+                {rate == null ? "—" : `${Math.round(rate)}%`}
+              </p>
+            </div>
+            <span style={{ fontSize: 26 }}>{rate == null ? "💡" : rate >= 0 ? "🌱" : "⚠️"}</span>
+          </div>
+          <p style={{ color: COLORS.hint, fontSize: 12, margin: "8px 0 0" }}>
+            {rate == null
+              ? "Registre entradas no mês para calcular."
+              : rate >= 0
+              ? "do que entrou neste mês ficou guardado."
+              : "você gastou mais do que entrou neste mês."}
+          </p>
         </div>
 
         {/* Evolução mensal */}
