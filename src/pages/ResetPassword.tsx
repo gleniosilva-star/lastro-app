@@ -64,6 +64,7 @@ export default function ResetPassword({ onDone }: { onDone: () => void }) {
                 {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
 
                 <button onClick={handleSave} disabled={loading} style={{ width: "100%", padding: 14, borderRadius: 10, border: "none", background: loading ? COLORS.muted : COLORS.navy, color: "#fff", fontSize: 15, fontWeight: 600, cursor: loading ? "not-allowed" : "pointer" }}>{loading ? "Salvando..." : "Salvar nova senha"}</button>
+                <button onClick={onDone} style={{ marginTop: 16, background: "none", border: "none", cursor: "pointer", color: COLORS.muted, fontSize: 13, width: "100%" }}>Voltar ao app</button>
               </>
             )}
           </div>
