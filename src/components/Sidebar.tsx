@@ -1,9 +1,18 @@
 import AnchorMark from "./AnchorMark";
 
 const COLORS = {
-  navy: "#0A2540",
-  emerald: "#10B981",
-  muted: "#64748B",
+  navy: "var(--navy)",
+  emerald: "var(--emerald)",
+  emeraldDark: "var(--emerald-dark)",
+  warning: "var(--warning)",
+  destructive: "var(--destructive)",
+  muted: "var(--muted)",
+  hint: "var(--hint)",
+  border: "var(--border)",
+  chip: "var(--chip)",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  text: "var(--text)",
 };
 
 export default function Sidebar({ tab, setTab, user }: { tab: string; setTab: (t: string) => void; user: any }) {

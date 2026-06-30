@@ -3,15 +3,18 @@ import { supabase } from "../lib/supabase";
 import { useIsDesktop } from "../lib/useIsDesktop";
 
 const COLORS = {
-  navy: "#0A2540",
-  emerald: "#10B981",
-  emeraldDark: "#059669",
-  warning: "#F59E0B",
-  destructive: "#E11D48",
-  muted: "#64748B",
-  hint: "#94A3B8",
-  border: "#E2E8F0",
-  chip: "#F1F5F9",
+  navy: "var(--navy)",
+  emerald: "var(--emerald)",
+  emeraldDark: "var(--emerald-dark)",
+  warning: "var(--warning)",
+  destructive: "var(--destructive)",
+  muted: "var(--muted)",
+  hint: "var(--hint)",
+  border: "var(--border)",
+  chip: "var(--chip)",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  text: "var(--text)",
 };
 
 const fmt = (v: number) =>
@@ -121,7 +124,7 @@ export default function Goals({ user }: { user: any }) {
   return (
     <div style={{ padding: "16px", paddingBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: COLORS.navy }}>Metas</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: COLORS.text }}>Metas</h2>
         <button onClick={openCreate} style={{ background: COLORS.emerald, border: "none", borderRadius: 10, padding: "8px 16px", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>+ Nova</button>
       </div>
 
@@ -144,7 +147,7 @@ export default function Goals({ user }: { user: any }) {
         const pct = Math.min(100, Math.round((Number(g.current_amount) / Number(g.target_amount)) * 100));
         const done = pct >= 100;
         return (
-          <div key={g.id} style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 12 }}>
+          <div key={g.id} style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 12 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
               <div>
                 <p style={{ margin: 0, fontWeight: 600, fontSize: 16 }}>{g.name} {done ? "🏆" : ""}</p>
@@ -161,7 +164,7 @@ export default function Goals({ user }: { user: any }) {
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
               <button onClick={() => openAporte(g)} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: COLORS.emerald, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 13 }}>＋ Aportar</button>
-              <button onClick={() => openEdit(g)} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `0.5px solid ${COLORS.border}`, background: "#fff", color: COLORS.muted, fontWeight: 600, cursor: "pointer", fontSize: 13 }}>Editar</button>
+              <button onClick={() => openEdit(g)} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `0.5px solid ${COLORS.border}`, background: COLORS.surface, color: COLORS.muted, fontWeight: 600, cursor: "pointer", fontSize: 13 }}>Editar</button>
             </div>
           </div>
         );
@@ -169,8 +172,8 @@ export default function Goals({ user }: { user: any }) {
 
       {showModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: isDesktop ? "center" : "flex-end", justifyContent: "center", zIndex: 200, padding: isDesktop ? 24 : 0, boxSizing: "border-box" }}>
-          <div style={{ background: "#fff", borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
-            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>{editingId ? "Editar meta" : "Nova meta"}</h3>
+          <div style={{ background: COLORS.surface, borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
+            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.text }}>{editingId ? "Editar meta" : "Nova meta"}</h3>
 
             <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Nome da meta *</label>
             <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Ex: Reserva de emergência" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none" }} />
@@ -187,7 +190,7 @@ export default function Goals({ user }: { user: any }) {
             {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
 
             <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={closeModal} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
+              <button onClick={closeModal} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: COLORS.surface, fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
               <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 10, border: "none", background: COLORS.navy, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>{saving ? "Salvando..." : "Salvar"}</button>
             </div>
 
@@ -195,12 +198,12 @@ export default function Goals({ user }: { user: any }) {
               <div style={{ marginTop: 12, padding: 12, background: "#FEF2F2", borderRadius: 10 }}>
                 <p style={{ margin: "0 0 10px", fontSize: 13, color: COLORS.destructive }}>Excluir esta meta? Essa ação não pode ser desfeita.</p>
                 <div style={{ display: "flex", gap: 12 }}>
-                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Não</button>
+                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: COLORS.surface, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Não</button>
                   <button onClick={handleDelete} disabled={saving} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", background: COLORS.destructive, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>{saving ? "Excluindo..." : "Sim, excluir"}</button>
                 </div>
               </div>
             ) : (
-              <button onClick={() => setConfirmDelete(true)} style={{ marginTop: 12, width: "100%", padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.destructive}`, background: "#fff", color: COLORS.destructive, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Excluir meta</button>
+              <button onClick={() => setConfirmDelete(true)} style={{ marginTop: 12, width: "100%", padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.destructive}`, background: COLORS.surface, color: COLORS.destructive, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Excluir meta</button>
             ))}
           </div>
         </div>
@@ -208,8 +211,8 @@ export default function Goals({ user }: { user: any }) {
 
       {aporteGoal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: isDesktop ? "center" : "flex-end", justifyContent: "center", zIndex: 200, padding: isDesktop ? 24 : 0, boxSizing: "border-box" }}>
-          <div style={{ background: "#fff", borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
-            <h3 style={{ margin: "0 0 6px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>Aportar em "{aporteGoal.name}"</h3>
+          <div style={{ background: COLORS.surface, borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
+            <h3 style={{ margin: "0 0 6px", fontSize: 18, fontWeight: 700, color: COLORS.text }}>Aportar em "{aporteGoal.name}"</h3>
             <p style={{ margin: "0 0 18px", fontSize: 13, color: COLORS.muted }}>Guardado: {fmt(Number(aporteGoal.current_amount))} de {fmt(Number(aporteGoal.target_amount))}</p>
 
             <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Valor do aporte (R$) *</label>
@@ -218,7 +221,7 @@ export default function Goals({ user }: { user: any }) {
             {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
 
             <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={closeAporte} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
+              <button onClick={closeAporte} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: COLORS.surface, fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
               <button onClick={handleAporte} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 10, border: "none", background: COLORS.emerald, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>{saving ? "Adicionando..." : "Adicionar"}</button>
             </div>
           </div>

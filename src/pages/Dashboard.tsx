@@ -3,16 +3,18 @@ import { supabase } from "../lib/supabase";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 const COLORS = {
-  navy: "#0A2540",
-  emerald: "#10B981",
-  emeraldDark: "#059669",
-  destructive: "#E11D48",
-  warning: "#F59E0B",
-  muted: "#64748B",
-  hint: "#94A3B8",
-  border: "#E2E8F0",
-  chip: "#F1F5F9",
-  bg: "#F8FAFC",
+  navy: "var(--navy)",
+  emerald: "var(--emerald)",
+  emeraldDark: "var(--emerald-dark)",
+  warning: "var(--warning)",
+  destructive: "var(--destructive)",
+  muted: "var(--muted)",
+  hint: "var(--hint)",
+  border: "var(--border)",
+  chip: "var(--chip)",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  text: "var(--text)",
 };
 
 const fmt = (v: number) =>
@@ -130,13 +132,13 @@ export default function Dashboard({ user }: { user: any }) {
       <div style={{ padding: "16px" }}>
         {/* Receitas vs Despesas */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-          <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}` }}>
+          <div style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}` }}>
             <p style={{ color: COLORS.muted, fontSize: 12, margin: "0 0 4px" }}>Entradas no mês</p>
             <p style={{ color: COLORS.emerald, fontSize: 16, fontWeight: 700, margin: 0, fontVariantNumeric: "tabular-nums" }}>
               +{fmt(income)}
             </p>
           </div>
-          <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}` }}>
+          <div style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}` }}>
             <p style={{ color: COLORS.muted, fontSize: 12, margin: "0 0 4px" }}>Saídas no mês</p>
             <p style={{ color: COLORS.destructive, fontSize: 16, fontWeight: 700, margin: 0, fontVariantNumeric: "tabular-nums" }}>
               -{fmt(expense)}
@@ -145,7 +147,7 @@ export default function Dashboard({ user }: { user: any }) {
         </div>
 
         {/* Evolução mensal */}
-        <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 16 }}>
+        <div style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 16 }}>
           <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 12px" }}>Entradas e saídas · 6 meses</p>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={monthData} margin={{ top: 4, right: 0, left: 0, bottom: 0 }}>
@@ -160,7 +162,7 @@ export default function Dashboard({ user }: { user: any }) {
 
         {/* Gastos por categoria */}
         {catData.length > 0 && (
-          <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 16 }}>
+          <div style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 16 }}>
             <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 12px" }}>Gastos por categoria · mês</p>
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
@@ -186,7 +188,7 @@ export default function Dashboard({ user }: { user: any }) {
 
         {/* Meta em destaque */}
         {featuredGoal && (
-          <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 16 }}>
+          <div style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 16 }}>
             <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 8px" }}>🎯 Meta em destaque</p>
             <p style={{ margin: "0 0 4px", fontWeight: 500 }}>{featuredGoal.name}</p>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: COLORS.muted, marginBottom: 6 }}>
@@ -200,7 +202,7 @@ export default function Dashboard({ user }: { user: any }) {
         )}
 
         {/* Últimas transações */}
-        <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}` }}>
+        <div style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}` }}>
           <p style={{ fontWeight: 600, fontSize: 15, margin: "0 0 12px" }}>Últimas transações</p>
           {transactions.length === 0 ? (
             <div style={{ textAlign: "center", padding: "24px 0" }}>

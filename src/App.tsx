@@ -10,10 +10,18 @@ import Sidebar from "./components/Sidebar";
 import AnchorMark from "./components/AnchorMark";
 
 const COLORS = {
-  navy: "#0A2540",
-  emerald: "#10B981",
-  muted: "#64748B",
-  border: "#E2E8F0",
+  navy: "var(--navy)",
+  emerald: "var(--emerald)",
+  emeraldDark: "var(--emerald-dark)",
+  warning: "var(--warning)",
+  destructive: "var(--destructive)",
+  muted: "var(--muted)",
+  hint: "var(--hint)",
+  border: "var(--border)",
+  chip: "var(--chip)",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  text: "var(--text)",
 };
 
 function BottomNav({ tab, setTab }: { tab: string; setTab: (t: string) => void }) {
@@ -25,7 +33,7 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: string) => void }
     { id: "profile", label: "Perfil", icon: "👤" },
   ];
   return (
-    <nav style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderTop: `1px solid ${COLORS.border}`, display: "flex", height: 64, zIndex: 100, maxWidth: 430, margin: "0 auto" }}>
+    <nav style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: COLORS.surface, borderTop: `1px solid ${COLORS.border}`, display: "flex", height: 64, zIndex: 100, maxWidth: 430, margin: "0 auto" }}>
       {tabs.map(t => (
         <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, border: "none", background: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, color: tab === t.id ? COLORS.emerald : COLORS.muted, fontWeight: tab === t.id ? 600 : 400 }}>
           <span style={{ fontSize: 20 }}>{t.icon}</span>
@@ -60,7 +68,7 @@ export default function App() {
   }, []);
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, sans-serif", background: "#F8FAFC" }}>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Inter, sans-serif", background: COLORS.bg }}>
       <div style={{ textAlign: "center" }}>
         <div style={{ display: "flex", justifyContent: "center" }}><AnchorMark size={48} color={COLORS.navy} /></div>
         <p style={{ color: COLORS.muted, marginTop: 12 }}>Carregando...</p>
@@ -84,7 +92,7 @@ export default function App() {
 // DESKTOP: menu lateral + conteúdo
   if (isDesktop) {
     return (
-      <div style={{ fontFamily: "Inter, sans-serif", background: "#F8FAFC", minHeight: "100vh" }}>
+      <div style={{ fontFamily: "Inter, sans-serif", background: COLORS.bg, minHeight: "100vh" }}>
         <Sidebar tab={tab} setTab={setTab} user={session.user} />
         <main style={{ marginLeft: 240, minHeight: "100vh", display: "flex", justifyContent: "center" }}>
           <div style={{ width: "100%", maxWidth: 960, padding: "32px 24px", boxSizing: "border-box" }}>
@@ -97,7 +105,7 @@ export default function App() {
 
   // MOBILE: barra inferior
   return (
-    <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", fontFamily: "Inter, sans-serif", background: "#F8FAFC", paddingBottom: 64 }}>
+    <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", fontFamily: "Inter, sans-serif", background: COLORS.bg, paddingBottom: 64 }}>
       {renderTab()}
       <BottomNav tab={tab} setTab={setTab} />
     </div>

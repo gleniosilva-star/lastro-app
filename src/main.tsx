@@ -2,6 +2,10 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { getInitialTheme, applyTheme } from './lib/theme'
+
+// Aplica o tema (claro/escuro) antes da primeira renderização.
+applyTheme(getInitialTheme())
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

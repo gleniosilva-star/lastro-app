@@ -2,21 +2,33 @@ import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import AnchorMark from "../components/AnchorMark";
 import Categories from "./Categories";
+import { getInitialTheme, applyTheme } from "../lib/theme";
 
 const COLORS = {
-  navy: "#0A2540",
-  emerald: "#10B981",
-  emeraldDark: "#059669",
-  destructive: "#E11D48",
-  muted: "#64748B",
-  hint: "#94A3B8",
-  border: "#E2E8F0",
-  chip: "#F1F5F9",
+  navy: "var(--navy)",
+  emerald: "var(--emerald)",
+  emeraldDark: "var(--emerald-dark)",
+  warning: "var(--warning)",
+  destructive: "var(--destructive)",
+  muted: "var(--muted)",
+  hint: "var(--hint)",
+  border: "var(--border)",
+  chip: "var(--chip)",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  text: "var(--text)",
 };
 
 export default function Profile({ user }: { user: any }) {
   const [exporting, setExporting] = useState(false);
   const [showCats, setShowCats] = useState(false);
+  const [dark, setDark] = useState(getInitialTheme() === "dark");
+
+  const toggleTheme = () => {
+    const m = dark ? "light" : "dark";
+    applyTheme(m);
+    setDark(!dark);
+  };
 
   const name = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuário";
 
@@ -53,7 +65,7 @@ export default function Profile({ user }: { user: any }) {
         </span>
       </div>
 
-      <div onClick={handleExport} style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 10, cursor: "pointer" }}>
+      <div onClick={handleExport} style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 10, cursor: "pointer" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ fontSize: 22 }}>📤</span>
@@ -66,7 +78,7 @@ export default function Profile({ user }: { user: any }) {
         </div>
       </div>
 
-      <div onClick={() => setShowCats(true)} style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 10, cursor: "pointer" }}>
+      <div onClick={() => setShowCats(true)} style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 10, cursor: "pointer" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <span style={{ fontSize: 22 }}>🏷️</span>
@@ -79,11 +91,26 @@ export default function Profile({ user }: { user: any }) {
         </div>
       </div>
 
+      <div onClick={toggleTheme} style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 10, cursor: "pointer" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <span style={{ fontSize: 22 }}>{dark ? "🌙" : "☀️"}</span>
+            <div>
+              <p style={{ margin: 0, fontWeight: 500, fontSize: 15 }}>Modo escuro</p>
+              <p style={{ margin: 0, fontSize: 12, color: COLORS.hint }}>{dark ? "Ativado" : "Desativado"}</p>
+            </div>
+          </div>
+          <div style={{ width: 44, height: 26, borderRadius: 99, background: dark ? COLORS.emerald : COLORS.border, position: "relative", transition: "background 0.2s", flexShrink: 0 }}>
+            <div style={{ width: 20, height: 20, borderRadius: "50%", background: "#fff", position: "absolute", top: 3, left: dark ? 21 : 3, transition: "left 0.2s" }} />
+          </div>
+        </div>
+      </div>
+
       {[
         { icon: "🔔", label: "Notificações", sub: "Em breve" },
         { icon: "🔐", label: "Privacidade", sub: "Em breve" },
       ].map(item => (
-        <div key={item.label} style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 10 }}>
+        <div key={item.label} style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 10 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
               <span style={{ fontSize: 22 }}>{item.icon}</span>
@@ -97,7 +124,7 @@ export default function Profile({ user }: { user: any }) {
         </div>
       ))}
 
-      <div onClick={() => supabase.auth.signOut()} style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginTop: 8, cursor: "pointer" }}>
+      <div onClick={() => supabase.auth.signOut()} style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginTop: 8, cursor: "pointer" }}>
         <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
           <span style={{ fontSize: 22 }}>🚪</span>
           <p style={{ margin: 0, fontWeight: 600, fontSize: 15, color: COLORS.destructive }}>Sair da conta</p>

@@ -3,13 +3,18 @@ import { supabase } from "../lib/supabase";
 import { useIsDesktop } from "../lib/useIsDesktop";
 
 const COLORS = {
-  navy: "#0A2540",
-  emerald: "#10B981",
-  destructive: "#E11D48",
-  muted: "#64748B",
-  hint: "#94A3B8",
-  border: "#E2E8F0",
-  chip: "#F1F5F9",
+  navy: "var(--navy)",
+  emerald: "var(--emerald)",
+  emeraldDark: "var(--emerald-dark)",
+  warning: "var(--warning)",
+  destructive: "var(--destructive)",
+  muted: "var(--muted)",
+  hint: "var(--hint)",
+  border: "var(--border)",
+  chip: "var(--chip)",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  text: "var(--text)",
 };
 
 const fmt = (v: number) =>
@@ -145,7 +150,7 @@ export default function Transactions({ user }: { user: any }) {
   return (
     <div style={{ padding: "16px", paddingBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: COLORS.navy }}>Transações</h2>
+        <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: COLORS.text }}>Transações</h2>
         <button onClick={openCreate} style={{ background: COLORS.emerald, border: "none", borderRadius: 10, padding: "8px 16px", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>+ Nova</button>
       </div>
 
@@ -169,7 +174,7 @@ export default function Transactions({ user }: { user: any }) {
         Object.entries(grouped).map(([day, txs]) => (
           <div key={day}>
             <p style={{ fontSize: 12, color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>{day}</p>
-            <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 12 }}>
+            <div style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 12 }}>
               {txs.map((t, i) => (
                 <div key={t.id} onClick={() => openEdit(t)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < txs.length - 1 ? `0.5px solid ${COLORS.border}` : "none", cursor: "pointer" }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
@@ -193,8 +198,8 @@ export default function Transactions({ user }: { user: any }) {
 
       {showModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: isDesktop ? "center" : "flex-end", justifyContent: "center", zIndex: 200, padding: isDesktop ? 24 : 0, boxSizing: "border-box" }}>
-          <div style={{ background: "#fff", borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
-            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>{editingId ? "Editar transação" : "Nova transação"}</h3>
+          <div style={{ background: COLORS.surface, borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
+            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.text }}>{editingId ? "Editar transação" : "Nova transação"}</h3>
 
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
               <button onClick={() => setForm({ ...form, type: "despesa", category_id: "" })} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 600, background: form.type === "despesa" ? COLORS.destructive : COLORS.chip, color: form.type === "despesa" ? "#fff" : COLORS.muted }}>Saída</button>
@@ -208,13 +213,13 @@ export default function Transactions({ user }: { user: any }) {
             <input value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} placeholder="0,00" type="number" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none" }} />
 
             <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Conta *</label>
-            <select value={form.account_id} onChange={e => setForm({ ...form, account_id: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none", background: "#fff" }}>
+            <select value={form.account_id} onChange={e => setForm({ ...form, account_id: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none", background: COLORS.surface }}>
               <option value="">Selecione...</option>
               {accounts.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
             </select>
 
             <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Categoria</label>
-            <select value={form.category_id} onChange={e => setForm({ ...form, category_id: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none", background: "#fff" }}>
+            <select value={form.category_id} onChange={e => setForm({ ...form, category_id: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none", background: COLORS.surface }}>
               <option value="">Sem categoria</option>
               {filteredCategories.map(c => <option key={c.id} value={c.id}>{c.icon} {c.name}</option>)}
             </select>
@@ -225,7 +230,7 @@ export default function Transactions({ user }: { user: any }) {
             {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
 
             <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={closeModal} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
+              <button onClick={closeModal} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: COLORS.surface, fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
               <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 10, border: "none", background: COLORS.navy, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>{saving ? "Salvando..." : "Salvar"}</button>
             </div>
 
@@ -233,12 +238,12 @@ export default function Transactions({ user }: { user: any }) {
               <div style={{ marginTop: 12, padding: 12, background: "#FEF2F2", borderRadius: 10 }}>
                 <p style={{ margin: "0 0 10px", fontSize: 13, color: COLORS.destructive }}>Excluir esta transação? O saldo da conta será ajustado automaticamente.</p>
                 <div style={{ display: "flex", gap: 12 }}>
-                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Não</button>
+                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: COLORS.surface, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Não</button>
                   <button onClick={handleDelete} disabled={saving} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", background: COLORS.destructive, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>{saving ? "Excluindo..." : "Sim, excluir"}</button>
                 </div>
               </div>
             ) : (
-              <button onClick={() => setConfirmDelete(true)} style={{ marginTop: 12, width: "100%", padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.destructive}`, background: "#fff", color: COLORS.destructive, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Excluir transação</button>
+              <button onClick={() => setConfirmDelete(true)} style={{ marginTop: 12, width: "100%", padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.destructive}`, background: COLORS.surface, color: COLORS.destructive, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Excluir transação</button>
             ))}
           </div>
         </div>

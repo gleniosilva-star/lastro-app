@@ -3,13 +3,18 @@ import { supabase } from "../lib/supabase";
 import { useIsDesktop } from "../lib/useIsDesktop";
 
 const COLORS = {
-  navy: "#0A2540",
-  emerald: "#10B981",
-  destructive: "#E11D48",
-  muted: "#64748B",
-  hint: "#94A3B8",
-  border: "#E2E8F0",
-  chip: "#F1F5F9",
+  navy: "var(--navy)",
+  emerald: "var(--emerald)",
+  emeraldDark: "var(--emerald-dark)",
+  warning: "var(--warning)",
+  destructive: "var(--destructive)",
+  muted: "var(--muted)",
+  hint: "var(--hint)",
+  border: "var(--border)",
+  chip: "var(--chip)",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  text: "var(--text)",
 };
 
 const PALETTE = ["#10B981", "#E11D48", "#F59E0B", "#3B82F6", "#8B5CF6", "#EC4899", "#14B8A6", "#64748B"];
@@ -89,7 +94,7 @@ export default function Categories({ user, onBack }: { user: any; onBack: () => 
   const globals = categories.filter(c => !c.user_id);
 
   const Row = ({ c, editable }: { c: any; editable: boolean }) => (
-    <div onClick={editable ? () => openEdit(c) : undefined} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", background: "#fff", borderRadius: 12, border: `0.5px solid ${COLORS.border}`, marginBottom: 8, cursor: editable ? "pointer" : "default" }}>
+    <div onClick={editable ? () => openEdit(c) : undefined} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 14px", background: COLORS.surface, borderRadius: 12, border: `0.5px solid ${COLORS.border}`, marginBottom: 8, cursor: editable ? "pointer" : "default" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <div style={{ width: 34, height: 34, borderRadius: 9, background: COLORS.chip, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>{c.icon || "🏷️"}</div>
         <div>
@@ -108,8 +113,8 @@ export default function Categories({ user, onBack }: { user: any; onBack: () => 
     <div style={{ padding: "16px", paddingBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: COLORS.navy, padding: 0 }}>←</button>
-          <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: COLORS.navy }}>Categorias</h2>
+          <button onClick={onBack} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 20, color: COLORS.text, padding: 0 }}>←</button>
+          <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: COLORS.text }}>Categorias</h2>
         </div>
         <button onClick={openCreate} style={{ background: COLORS.emerald, border: "none", borderRadius: 10, padding: "8px 16px", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>+ Nova</button>
       </div>
@@ -130,8 +135,8 @@ export default function Categories({ user, onBack }: { user: any; onBack: () => 
 
       {showModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: isDesktop ? "center" : "flex-end", justifyContent: "center", zIndex: 200, padding: isDesktop ? 24 : 0, boxSizing: "border-box" }}>
-          <div style={{ background: "#fff", borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
-            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>{editingId ? "Editar categoria" : "Nova categoria"}</h3>
+          <div style={{ background: COLORS.surface, borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
+            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.text }}>{editingId ? "Editar categoria" : "Nova categoria"}</h3>
 
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
               <button onClick={() => setForm({ ...form, type: "despesa" })} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 600, background: form.type === "despesa" ? COLORS.destructive : COLORS.chip, color: form.type === "despesa" ? "#fff" : COLORS.muted }}>Saída</button>
@@ -154,7 +159,7 @@ export default function Categories({ user, onBack }: { user: any; onBack: () => 
             {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
 
             <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={closeModal} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
+              <button onClick={closeModal} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: COLORS.surface, fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
               <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 10, border: "none", background: COLORS.navy, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>{saving ? "Salvando..." : "Salvar"}</button>
             </div>
 
@@ -162,12 +167,12 @@ export default function Categories({ user, onBack }: { user: any; onBack: () => 
               <div style={{ marginTop: 12, padding: 12, background: "#FEF2F2", borderRadius: 10 }}>
                 <p style={{ margin: "0 0 10px", fontSize: 13, color: COLORS.destructive }}>Excluir esta categoria?</p>
                 <div style={{ display: "flex", gap: 12 }}>
-                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Não</button>
+                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: COLORS.surface, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Não</button>
                   <button onClick={handleDelete} disabled={saving} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", background: COLORS.destructive, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>{saving ? "Excluindo..." : "Sim, excluir"}</button>
                 </div>
               </div>
             ) : (
-              <button onClick={() => setConfirmDelete(true)} style={{ marginTop: 12, width: "100%", padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.destructive}`, background: "#fff", color: COLORS.destructive, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Excluir categoria</button>
+              <button onClick={() => setConfirmDelete(true)} style={{ marginTop: 12, width: "100%", padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.destructive}`, background: COLORS.surface, color: COLORS.destructive, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Excluir categoria</button>
             ))}
           </div>
         </div>

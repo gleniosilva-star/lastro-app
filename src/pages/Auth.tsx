@@ -4,13 +4,18 @@ import { useIsDesktop } from "../lib/useIsDesktop";
 import AnchorMark from "../components/AnchorMark";
 
 const COLORS = {
-  navy: "#0A2540",
-  emerald: "#10B981",
-  emeraldDark: "#059669",
-  destructive: "#E11D48",
-  muted: "#64748B",
-  border: "#E2E8F0",
-  bg: "#F8FAFC",
+  navy: "var(--navy)",
+  emerald: "var(--emerald)",
+  emeraldDark: "var(--emerald-dark)",
+  warning: "var(--warning)",
+  destructive: "var(--destructive)",
+  muted: "var(--muted)",
+  hint: "var(--hint)",
+  border: "var(--border)",
+  chip: "var(--chip)",
+  bg: "var(--bg)",
+  surface: "var(--surface)",
+  text: "var(--text)",
 };
 
 export default function Auth() {
@@ -59,8 +64,8 @@ export default function Auth() {
 
       {/* Form */}
       <div style={{ padding: 24, flex: 1 }}>
-        <div style={{ background: "#fff", borderRadius: 16, padding: 24, border: `0.5px solid ${COLORS.border}` }}>
-          <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700, color: COLORS.navy }}>
+        <div style={{ background: COLORS.surface, borderRadius: 16, padding: 24, border: `0.5px solid ${COLORS.border}` }}>
+          <h2 style={{ margin: "0 0 20px", fontSize: 20, fontWeight: 700, color: COLORS.text }}>
             {mode === "login" ? "Entrar" : mode === "cadastro" ? "Criar conta" : "Recuperar senha"}
           </h2>
 
