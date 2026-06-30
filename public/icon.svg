@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" fill="none" role="img" aria-label="Lastro">
+  <rect x="2" y="2" width="116" height="116" rx="26" fill="#0A2540"/>
+  <g transform="translate(20.8,22.2) scale(1.4)">
+    <circle cx="28" cy="11" r="5" stroke="#10B981" stroke-width="3"/>
+    <line x1="28" y1="16" x2="28" y2="45" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    <line x1="18" y1="21" x2="38" y2="21" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+    <path d="M13 37 Q13 48 28 48 Q43 48 43 37" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>
