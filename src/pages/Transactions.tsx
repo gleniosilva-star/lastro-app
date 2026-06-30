@@ -40,6 +40,7 @@ export default function Transactions({ user }: { user: any }) {
     account_id: "",
     category_id: "",
     transaction_date: new Date().toISOString().split("T")[0],
+    repeat: "",
   });
 
   const load = async () => {
@@ -56,7 +57,7 @@ export default function Transactions({ user }: { user: any }) {
 
   useEffect(() => { load(); }, []);
 
-  const emptyForm = () => ({ description: "", amount: "", type: "despesa", account_id: "", category_id: "", transaction_date: new Date().toISOString().split("T")[0] });
+  const emptyForm = () => ({ description: "", amount: "", type: "despesa", account_id: "", category_id: "", transaction_date: new Date().toISOString().split("T")[0], repeat: "" });
 
   const openCreate = () => {
     setForm(emptyForm());
@@ -74,6 +75,7 @@ export default function Transactions({ user }: { user: any }) {
       account_id: t.account_id ?? "",
       category_id: t.category_id ?? "",
       transaction_date: t.transaction_date,
+      repeat: t.is_recurring ? (t.recurring_frequency || "") : "",
     });
     setEditingId(t.id);
     setConfirmDelete(false);
@@ -103,6 +105,8 @@ export default function Transactions({ user }: { user: any }) {
       type: form.type,
       description: form.description.trim(),
       transaction_date: form.transaction_date,
+      is_recurring: !!form.repeat,
+      recurring_frequency: form.repeat || null,
     };
     const { error } = editingId
       ? await supabase.from("transactions").update(payload).eq("id", editingId)
@@ -182,7 +186,7 @@ export default function Transactions({ user }: { user: any }) {
                       {t.categories?.icon || "📌"}
                     </div>
                     <div>
-                      <p style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t.description}</p>
+                      <p style={{ margin: 0, fontSize: 14, fontWeight: 500 }}>{t.description}{t.is_recurring ? " 🔁" : ""}</p>
                       <p style={{ margin: 0, fontSize: 12, color: COLORS.muted }}>{t.accounts?.name || "—"} · {t.categories?.name || "Sem categoria"}</p>
                     </div>
                   </div>
@@ -226,6 +230,16 @@ export default function Transactions({ user }: { user: any }) {
 
             <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Data</label>
             <input type="date" value={form.transaction_date} onChange={e => setForm({ ...form, transaction_date: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none" }} />
+
+            <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Repetir</label>
+            <select value={form.repeat} onChange={e => setForm({ ...form, repeat: e.target.value })} style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: form.repeat ? 6 : 14, outline: "none", background: COLORS.surface }}>
+              <option value="">Não repetir</option>
+              <option value="diário">Diariamente</option>
+              <option value="semanal">Semanalmente</option>
+              <option value="mensal">Mensalmente</option>
+              <option value="anual">Anualmente</option>
+            </select>
+            {form.repeat && <p style={{ margin: "0 0 14px", fontSize: 12, color: COLORS.hint }}>Os próximos lançamentos serão criados automaticamente.</p>}
 
             {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
 
