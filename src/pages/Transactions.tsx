@@ -26,6 +26,8 @@ export default function Transactions({ user }: { user: any }) {
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [form, setForm] = useState({
     description: "",
     amount: "",
@@ -49,6 +51,38 @@ export default function Transactions({ user }: { user: any }) {
 
   useEffect(() => { load(); }, []);
 
+  const emptyForm = () => ({ description: "", amount: "", type: "despesa", account_id: "", category_id: "", transaction_date: new Date().toISOString().split("T")[0] });
+
+  const openCreate = () => {
+    setForm(emptyForm());
+    setEditingId(null);
+    setConfirmDelete(false);
+    setError("");
+    setShowModal(true);
+  };
+
+  const openEdit = (t: any) => {
+    setForm({
+      description: t.description ?? "",
+      amount: String(t.amount ?? ""),
+      type: t.type,
+      account_id: t.account_id ?? "",
+      category_id: t.category_id ?? "",
+      transaction_date: t.transaction_date,
+    });
+    setEditingId(t.id);
+    setConfirmDelete(false);
+    setError("");
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setError("");
+    setEditingId(null);
+    setConfirmDelete(false);
+  };
+
   const handleSave = async () => {
     if (!form.description.trim()) { setError("Descrição é obrigatória"); return; }
     const amount = Math.abs(parseFloat(form.amount.replace(",", ".")));
@@ -57,21 +91,30 @@ export default function Transactions({ user }: { user: any }) {
     if (!form.transaction_date) { setError("Selecione a data."); return; }
     setSaving(true);
     setError("");
-    const { error } = await supabase.from("transactions").insert({
-      user_id: user.id,
+    const payload = {
       account_id: form.account_id,
       category_id: form.category_id || null,
       amount,
       type: form.type,
       description: form.description.trim(),
       transaction_date: form.transaction_date,
-    });
+    };
+    const { error } = editingId
+      ? await supabase.from("transactions").update(payload).eq("id", editingId)
+      : await supabase.from("transactions").insert({ user_id: user.id, ...payload });
     if (error) setError("Erro ao salvar.");
-    else {
-      setShowModal(false);
-      setForm({ description: "", amount: "", type: "despesa", account_id: "", category_id: "", transaction_date: new Date().toISOString().split("T")[0] });
-      load();
-    }
+    else { closeModal(); load(); }
+    setSaving(false);
+  };
+
+  const handleDelete = async () => {
+    if (!editingId) return;
+    setSaving(true);
+    setError("");
+    const { error } = await supabase.from("transactions").delete().eq("id", editingId);
+    if (error) { setError("Erro ao excluir."); setSaving(false); return; }
+    closeModal();
+    load();
     setSaving(false);
   };
 
@@ -103,7 +146,7 @@ export default function Transactions({ user }: { user: any }) {
     <div style={{ padding: "16px", paddingBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: COLORS.navy }}>Transações</h2>
-        <button onClick={() => setShowModal(true)} style={{ background: COLORS.emerald, border: "none", borderRadius: 10, padding: "8px 16px", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>+ Nova</button>
+        <button onClick={openCreate} style={{ background: COLORS.emerald, border: "none", borderRadius: 10, padding: "8px 16px", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>+ Nova</button>
       </div>
 
       <input placeholder="Buscar..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 14, marginBottom: 12, boxSizing: "border-box", outline: "none" }} />
@@ -128,7 +171,7 @@ export default function Transactions({ user }: { user: any }) {
             <p style={{ fontSize: 12, color: COLORS.muted, fontWeight: 600, marginBottom: 8 }}>{day}</p>
             <div style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 12 }}>
               {txs.map((t, i) => (
-                <div key={t.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < txs.length - 1 ? `0.5px solid ${COLORS.border}` : "none" }}>
+                <div key={t.id} onClick={() => openEdit(t)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0", borderBottom: i < txs.length - 1 ? `0.5px solid ${COLORS.border}` : "none", cursor: "pointer" }}>
                   <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <div style={{ width: 40, height: 40, borderRadius: 12, background: COLORS.chip, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>
                       {t.categories?.icon || "📌"}
@@ -151,7 +194,7 @@ export default function Transactions({ user }: { user: any }) {
       {showModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: isDesktop ? "center" : "flex-end", justifyContent: "center", zIndex: 200, padding: isDesktop ? 24 : 0, boxSizing: "border-box" }}>
           <div style={{ background: "#fff", borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
-            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>Nova transação</h3>
+            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>{editingId ? "Editar transação" : "Nova transação"}</h3>
 
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
               <button onClick={() => setForm({ ...form, type: "despesa", category_id: "" })} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", cursor: "pointer", fontWeight: 600, background: form.type === "despesa" ? COLORS.destructive : COLORS.chip, color: form.type === "despesa" ? "#fff" : COLORS.muted }}>Saída</button>
@@ -182,9 +225,21 @@ export default function Transactions({ user }: { user: any }) {
             {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
 
             <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={() => { setShowModal(false); setError(""); }} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
+              <button onClick={closeModal} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
               <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 10, border: "none", background: COLORS.navy, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>{saving ? "Salvando..." : "Salvar"}</button>
             </div>
+
+            {editingId && (confirmDelete ? (
+              <div style={{ marginTop: 12, padding: 12, background: "#FEF2F2", borderRadius: 10 }}>
+                <p style={{ margin: "0 0 10px", fontSize: 13, color: COLORS.destructive }}>Excluir esta transação? O saldo da conta será ajustado automaticamente.</p>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Não</button>
+                  <button onClick={handleDelete} disabled={saving} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", background: COLORS.destructive, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>{saving ? "Excluindo..." : "Sim, excluir"}</button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => setConfirmDelete(true)} style={{ marginTop: 12, width: "100%", padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.destructive}`, background: "#fff", color: COLORS.destructive, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Excluir transação</button>
+            ))}
           </div>
         </div>
       )}

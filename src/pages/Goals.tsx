@@ -24,6 +24,10 @@ export default function Goals({ user }: { user: any }) {
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [aporteGoal, setAporteGoal] = useState<any | null>(null);
+  const [aporteValue, setAporteValue] = useState("");
   const [form, setForm] = useState({ name: "", target_amount: "", current_amount: "", target_date: "" });
 
   const load = async () => {
@@ -34,6 +38,34 @@ export default function Goals({ user }: { user: any }) {
 
   useEffect(() => { load(); }, []);
 
+  const openCreate = () => {
+    setForm({ name: "", target_amount: "", current_amount: "", target_date: "" });
+    setEditingId(null);
+    setConfirmDelete(false);
+    setError("");
+    setShowModal(true);
+  };
+
+  const openEdit = (g: any) => {
+    setForm({
+      name: g.name ?? "",
+      target_amount: String(g.target_amount ?? ""),
+      current_amount: String(g.current_amount ?? ""),
+      target_date: g.target_date ?? "",
+    });
+    setEditingId(g.id);
+    setConfirmDelete(false);
+    setError("");
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setError("");
+    setEditingId(null);
+    setConfirmDelete(false);
+  };
+
   const handleSave = async () => {
     if (!form.name.trim()) { setError("Nome é obrigatório"); return; }
     const target = parseFloat(form.target_amount.replace(",", "."));
@@ -42,19 +74,44 @@ export default function Goals({ user }: { user: any }) {
     if (!Number.isFinite(current) || current < 0) { setError("Valor já guardado inválido."); return; }
     setSaving(true);
     setError("");
-    const { error } = await supabase.from("goals").insert({
-      user_id: user.id,
+    const payload = {
       name: form.name.trim(),
       target_amount: target,
       current_amount: current,
       target_date: form.target_date || null,
-    });
+    };
+    const { error } = editingId
+      ? await supabase.from("goals").update(payload).eq("id", editingId)
+      : await supabase.from("goals").insert({ user_id: user.id, ...payload });
     if (error) setError("Erro ao salvar meta.");
-    else {
-      setShowModal(false);
-      setForm({ name: "", target_amount: "", current_amount: "", target_date: "" });
-      load();
-    }
+    else { closeModal(); load(); }
+    setSaving(false);
+  };
+
+  const handleDelete = async () => {
+    if (!editingId) return;
+    setSaving(true);
+    setError("");
+    const { error } = await supabase.from("goals").delete().eq("id", editingId);
+    if (error) { setError("Erro ao excluir."); setSaving(false); return; }
+    closeModal();
+    load();
+    setSaving(false);
+  };
+
+  const openAporte = (g: any) => { setAporteGoal(g); setAporteValue(""); setError(""); };
+  const closeAporte = () => { setAporteGoal(null); setAporteValue(""); setError(""); };
+
+  const handleAporte = async () => {
+    const v = parseFloat(aporteValue.replace(",", "."));
+    if (!aporteValue || !Number.isFinite(v) || v <= 0) { setError("Informe um valor válido maior que zero."); return; }
+    setSaving(true);
+    setError("");
+    const novo = Number(aporteGoal.current_amount) + v;
+    const { error } = await supabase.from("goals").update({ current_amount: novo }).eq("id", aporteGoal.id);
+    if (error) { setError("Erro ao aportar."); setSaving(false); return; }
+    closeAporte();
+    load();
     setSaving(false);
   };
 
@@ -65,7 +122,7 @@ export default function Goals({ user }: { user: any }) {
     <div style={{ padding: "16px", paddingBottom: 80 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
         <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: COLORS.navy }}>Metas</h2>
-        <button onClick={() => setShowModal(true)} style={{ background: COLORS.emerald, border: "none", borderRadius: 10, padding: "8px 16px", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>+ Nova</button>
+        <button onClick={openCreate} style={{ background: COLORS.emerald, border: "none", borderRadius: 10, padding: "8px 16px", color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>+ Nova</button>
       </div>
 
       {/* Hero total */}
@@ -102,6 +159,10 @@ export default function Goals({ user }: { user: any }) {
             <div style={{ background: COLORS.chip, borderRadius: 99, height: 8 }}>
               <div style={{ background: done ? COLORS.warning : COLORS.emerald, height: "100%", width: `${pct}%`, borderRadius: 99 }} />
             </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+              <button onClick={() => openAporte(g)} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: "none", background: COLORS.emerald, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 13 }}>＋ Aportar</button>
+              <button onClick={() => openEdit(g)} style={{ flex: 1, padding: "8px 0", borderRadius: 8, border: `0.5px solid ${COLORS.border}`, background: "#fff", color: COLORS.muted, fontWeight: 600, cursor: "pointer", fontSize: 13 }}>Editar</button>
+            </div>
           </div>
         );
       })}
@@ -109,7 +170,7 @@ export default function Goals({ user }: { user: any }) {
       {showModal && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: isDesktop ? "center" : "flex-end", justifyContent: "center", zIndex: 200, padding: isDesktop ? 24 : 0, boxSizing: "border-box" }}>
           <div style={{ background: "#fff", borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
-            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>Nova meta</h3>
+            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>{editingId ? "Editar meta" : "Nova meta"}</h3>
 
             <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Nome da meta *</label>
             <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Ex: Reserva de emergência" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none" }} />
@@ -126,8 +187,39 @@ export default function Goals({ user }: { user: any }) {
             {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
 
             <div style={{ display: "flex", gap: 12 }}>
-              <button onClick={() => { setShowModal(false); setError(""); }} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
+              <button onClick={closeModal} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
               <button onClick={handleSave} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 10, border: "none", background: COLORS.navy, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>{saving ? "Salvando..." : "Salvar"}</button>
+            </div>
+
+            {editingId && (confirmDelete ? (
+              <div style={{ marginTop: 12, padding: 12, background: "#FEF2F2", borderRadius: 10 }}>
+                <p style={{ margin: "0 0 10px", fontSize: 13, color: COLORS.destructive }}>Excluir esta meta? Essa ação não pode ser desfeita.</p>
+                <div style={{ display: "flex", gap: 12 }}>
+                  <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Não</button>
+                  <button onClick={handleDelete} disabled={saving} style={{ flex: 1, padding: 12, borderRadius: 10, border: "none", background: COLORS.destructive, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 14 }}>{saving ? "Excluindo..." : "Sim, excluir"}</button>
+                </div>
+              </div>
+            ) : (
+              <button onClick={() => setConfirmDelete(true)} style={{ marginTop: 12, width: "100%", padding: 12, borderRadius: 10, border: `0.5px solid ${COLORS.destructive}`, background: "#fff", color: COLORS.destructive, fontWeight: 600, cursor: "pointer", fontSize: 14 }}>Excluir meta</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {aporteGoal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: isDesktop ? "center" : "flex-end", justifyContent: "center", zIndex: 200, padding: isDesktop ? 24 : 0, boxSizing: "border-box" }}>
+          <div style={{ background: "#fff", borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto" }}>
+            <h3 style={{ margin: "0 0 6px", fontSize: 18, fontWeight: 700, color: COLORS.navy }}>Aportar em "{aporteGoal.name}"</h3>
+            <p style={{ margin: "0 0 18px", fontSize: 13, color: COLORS.muted }}>Guardado: {fmt(Number(aporteGoal.current_amount))} de {fmt(Number(aporteGoal.target_amount))}</p>
+
+            <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Valor do aporte (R$) *</label>
+            <input value={aporteValue} onChange={e => setAporteValue(e.target.value)} placeholder="0,00" type="number" autoFocus style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none" }} />
+
+            {error && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {error}</p>}
+
+            <div style={{ display: "flex", gap: 12 }}>
+              <button onClick={closeAporte} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Cancelar</button>
+              <button onClick={handleAporte} disabled={saving} style={{ flex: 1, padding: 14, borderRadius: 10, border: "none", background: COLORS.emerald, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>{saving ? "Adicionando..." : "Adicionar"}</button>
             </div>
           </div>
         </div>
