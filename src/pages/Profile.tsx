@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabase";
 import AnchorMark from "../components/AnchorMark";
+import Categories from "./Categories";
 
 const COLORS = {
   navy: "#0A2540",
@@ -15,6 +16,7 @@ const COLORS = {
 
 export default function Profile({ user }: { user: any }) {
   const [exporting, setExporting] = useState(false);
+  const [showCats, setShowCats] = useState(false);
 
   const name = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuário";
 
@@ -36,6 +38,8 @@ export default function Profile({ user }: { user: any }) {
     setExporting(false);
   };
 
+  if (showCats) return <Categories user={user} onBack={() => setShowCats(false)} />;
+
   return (
     <div style={{ padding: "16px", paddingBottom: 80 }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "24px 0", marginBottom: 16 }}>
@@ -56,6 +60,19 @@ export default function Profile({ user }: { user: any }) {
             <div>
               <p style={{ margin: 0, fontWeight: 500, fontSize: 15 }}>Exportar meus dados</p>
               <p style={{ margin: 0, fontSize: 12, color: COLORS.hint }}>{exporting ? "Exportando..." : "Baixar tudo em JSON"}</p>
+            </div>
+          </div>
+          <span style={{ color: COLORS.hint }}>›</span>
+        </div>
+      </div>
+
+      <div onClick={() => setShowCats(true)} style={{ background: "#fff", borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 10, cursor: "pointer" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <span style={{ fontSize: 22 }}>🏷️</span>
+            <div>
+              <p style={{ margin: 0, fontWeight: 500, fontSize: 15 }}>Categorias</p>
+              <p style={{ margin: 0, fontSize: 12, color: COLORS.hint }}>Crie e edite suas categorias</p>
             </div>
           </div>
           <span style={{ color: COLORS.hint }}>›</span>
