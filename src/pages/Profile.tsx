@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import AnchorMark from "../components/AnchorMark";
 import Categories from "./Categories";
 import { getInitialTheme, applyTheme } from "../lib/theme";
+import { useIsDesktop } from "../lib/useIsDesktop";
 
 const COLORS = {
   navy: "var(--navy)",
@@ -20,14 +21,34 @@ const COLORS = {
 };
 
 export default function Profile({ user }: { user: any }) {
+  const isDesktop = useIsDesktop();
   const [exporting, setExporting] = useState(false);
   const [showCats, setShowCats] = useState(false);
   const [dark, setDark] = useState(getInitialTheme() === "dark");
+  const [showPw, setShowPw] = useState(false);
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwError, setPwError] = useState("");
+  const [pwDone, setPwDone] = useState(false);
 
   const toggleTheme = () => {
     const m = dark ? "light" : "dark";
     applyTheme(m);
     setDark(!dark);
+  };
+
+  const closePw = () => { setShowPw(false); setNewPw(""); setConfirmPw(""); setPwError(""); setPwDone(false); };
+
+  const handleChangePassword = async () => {
+    if (newPw.length < 6) { setPwError("A senha deve ter ao menos 6 caracteres."); return; }
+    if (newPw !== confirmPw) { setPwError("As senhas não conferem."); return; }
+    setPwSaving(true);
+    setPwError("");
+    const { error } = await supabase.auth.updateUser({ password: newPw });
+    if (error) { setPwError("Não foi possível alterar a senha."); setPwSaving(false); return; }
+    setPwDone(true);
+    setPwSaving(false);
   };
 
   const name = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuário";
@@ -106,6 +127,19 @@ export default function Profile({ user }: { user: any }) {
         </div>
       </div>
 
+      <div onClick={() => setShowPw(true)} style={{ background: COLORS.surface, borderRadius: 14, padding: 16, border: `0.5px solid ${COLORS.border}`, marginBottom: 10, cursor: "pointer" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <span style={{ fontSize: 22 }}>🔑</span>
+            <div>
+              <p style={{ margin: 0, fontWeight: 500, fontSize: 15 }}>Alterar senha</p>
+              <p style={{ margin: 0, fontSize: 12, color: COLORS.hint }}>Defina uma nova senha de acesso</p>
+            </div>
+          </div>
+          <span style={{ color: COLORS.hint }}>›</span>
+        </div>
+      </div>
+
       {[
         { icon: "🔔", label: "Notificações", sub: "Em breve" },
         { icon: "🔐", label: "Privacidade", sub: "Em breve" },
@@ -132,6 +166,33 @@ export default function Profile({ user }: { user: any }) {
       </div>
 
       <p style={{ textAlign: "center", color: COLORS.hint, fontSize: 12, marginTop: 24 }}>Lastro <span style={{ display: "inline-flex", verticalAlign: "middle" }}><AnchorMark size={13} color={COLORS.hint} /></span> · Sua vida financeira em paz</p>
+
+      {showPw && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: isDesktop ? "center" : "flex-end", justifyContent: "center", zIndex: 200, padding: isDesktop ? 24 : 0, boxSizing: "border-box" }}>
+          <div style={{ background: COLORS.surface, borderRadius: isDesktop ? 20 : "20px 20px 0 0", padding: 24, width: "100%", maxWidth: 440 }}>
+            <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700, color: COLORS.text }}>Alterar senha</h3>
+            {pwDone ? (
+              <div style={{ textAlign: "center" }}>
+                <p style={{ fontSize: 40, margin: "0 0 8px" }}>✅</p>
+                <p style={{ fontSize: 14, color: COLORS.muted, margin: "0 0 20px" }}>Senha alterada com sucesso.</p>
+                <button onClick={closePw} style={{ width: "100%", padding: 14, borderRadius: 10, border: "none", background: COLORS.navy, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>Fechar</button>
+              </div>
+            ) : (
+              <>
+                <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Nova senha</label>
+                <input type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="••••••••" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 14, outline: "none" }} />
+                <label style={{ fontSize: 13, fontWeight: 500, color: COLORS.muted, display: "block", marginBottom: 6 }}>Confirmar nova senha</label>
+                <input type="password" value={confirmPw} onChange={e => setConfirmPw(e.target.value)} placeholder="••••••••" style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `0.5px solid ${COLORS.border}`, fontSize: 15, boxSizing: "border-box", marginBottom: 18, outline: "none" }} />
+                {pwError && <p style={{ color: COLORS.destructive, fontSize: 13, marginBottom: 12 }}>⚠️ {pwError}</p>}
+                <div style={{ display: "flex", gap: 12 }}>
+                  <button onClick={closePw} style={{ flex: 1, padding: 14, borderRadius: 10, border: `0.5px solid ${COLORS.border}`, background: COLORS.surface, fontWeight: 600, cursor: "pointer", fontSize: 15, color: COLORS.text }}>Cancelar</button>
+                  <button onClick={handleChangePassword} disabled={pwSaving} style={{ flex: 1, padding: 14, borderRadius: 10, border: "none", background: COLORS.navy, color: "#fff", fontWeight: 600, cursor: "pointer", fontSize: 15 }}>{pwSaving ? "Salvando..." : "Salvar"}</button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

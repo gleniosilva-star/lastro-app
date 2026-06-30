@@ -8,6 +8,7 @@ import Goals from "./pages/Goals";
 import Profile from "./pages/Profile";
 import Sidebar from "./components/Sidebar";
 import AnchorMark from "./components/AnchorMark";
+import ResetPassword from "./pages/ResetPassword";
 
 const COLORS = {
   navy: "var(--navy)",
@@ -46,6 +47,7 @@ function BottomNav({ tab, setTab }: { tab: string; setTab: (t: string) => void }
 
 export default function App() {
   const [session, setSession] = useState<any>(null);
+  const [recovery, setRecovery] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("dashboard");
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
@@ -61,7 +63,8 @@ export default function App() {
       setSession(session);
       setLoading(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") setRecovery(true);
       setSession(session);
     });
     return () => subscription.unsubscribe();
@@ -75,6 +78,8 @@ export default function App() {
       </div>
     </div>
   );
+
+  if (recovery) return <ResetPassword onDone={() => setRecovery(false)} />;
 
   if (!session) return <Auth />;
 

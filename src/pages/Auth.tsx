@@ -42,10 +42,13 @@ export default function Auth() {
         password,
         options: { data: { full_name: name } },
       });
-      if (error) setError("Erro ao criar conta. Tente outro e-mail.");
-      else setMessage("Conta criada! Verifique seu e-mail para confirmar.");
+      if (error) {
+        const m = (error.message || "").toLowerCase();
+        if (m.includes("already") || m.includes("registered") || m.includes("exists")) setError("Este e-mail já tem uma conta. Faça login.");
+        else setError("Erro ao criar conta. Tente outro e-mail.");
+      } else setMessage("Conta criada! Verifique seu e-mail para confirmar.");
     } else {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
       if (error) setError("Erro ao enviar e-mail.");
       else setMessage("E-mail de recuperação enviado!");
     }
